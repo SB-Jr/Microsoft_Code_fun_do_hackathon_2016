@@ -1,8 +1,7 @@
-package kamehameha.beam.percept.utility;
+package kamehameha.beam.percept.camera;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.hardware.camera2.*;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;

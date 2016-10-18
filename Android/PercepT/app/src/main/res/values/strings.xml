@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">\"PercepT\"</string>
+    <string name="wont_work">Sorry for inconvenience!!</string>
+    <string name="exit">Exit</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="wont_work_description">Sorry for the inconvenience. Some of the permissions was not granted to the application. This may cause some problems in the functioning of the application. Thank you for trying the application!! </string>
 </resources>
