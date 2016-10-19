@@ -16,9 +16,9 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
     private Camera mCamera;
     private SurfaceHolder mHolder;
 
-    public CameraCanvas(Context context, Camera camera,SurfaceHolder holder) {
+    public CameraCanvas(Context context,SurfaceHolder holder) {
         super(context);
-        mCamera = camera;
+        mCamera = Camera.open();
         mHolder = holder;
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);

@@ -12,33 +12,39 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.TextView;
-import java.util.ArrayList;
 
 import kamehameha.beam.percept.R;
 import kamehameha.beam.percept.camera.CameraCanvas;
 import kamehameha.beam.percept.location.LocateUser;
+import kamehameha.beam.percept.location.OrientUser;
+import kamehameha.beam.percept.models.CoordinatePoint;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Camera mCamera;
+    //supporting objects for the activity
     private CameraCanvas mCameraCanvas;
     private LocateUser mLocation;
+    private OrientUser mOrientation;
 
-
+    //permission objects
     private static final int MY_PERMISSION_REQUEST_CODE = 6969;
     private static final String[] PERMISSIONS_REQUIRED = {  Manifest.permission.CAMERA,
                                                             Manifest.permission.LOCATION_HARDWARE,
                                                             Manifest.permission.CONTROL_LOCATION_UPDATES,
                                                             Manifest.permission.ACCESS_COARSE_LOCATION};
-
+    //view objects used in the activity
     private TextView coordinatesText;
+    private SurfaceView cameraHolder;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity    _main);
 
         coordinatesText = (TextView) findViewById(R.id.coordinates);
+        cameraHolder = (SurfaceView) findViewById(R.id.camera_preview);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(!hasPermissions()) {
@@ -105,25 +111,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void startApp(){
-        mCamera = Camera.open();
-        SurfaceView cameraHolder = (SurfaceView) findViewById(R.id.camera_preview);
+        //camera part of the application
+        mCameraCanvas = new CameraCanvas(this,cameraHolder.getHolder());
 
-        mCameraCanvas = new CameraCanvas(this, mCamera, cameraHolder.getHolder());
-
+        //users location detection part of the application
         mLocation = new LocateUser(getApplicationContext());
-
         mLocation.buildApi();
         mLocation.connect();
-
-        ArrayList<Double> co = mLocation.getData();
+        CoordinatePoint co = mLocation.getData();
         if (co != null) {
-            coordinatesText.setText("latitude: " + co.get(0) + " longitude: " + co.get(1));
+            coordinatesText.setText("latitude: " + co.getLatitude() + " longitude: " + co.getLongitude());
         } else {
             coordinatesText.setText("no data available");
         }
+
+        //users Orientation detection part of the application
+        mOrientation = new OrientUser(getApplicationContext());
+        double direction = mOrientation.getDirection();
     }
-
-
-
 
 }

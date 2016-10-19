@@ -19,7 +19,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.ArrayList;
+import kamehameha.beam.percept.models.CoordinatePoint;
 
 /**
  * Created by sbjr on 10/17/16.
@@ -74,19 +74,18 @@ public class LocateUser implements ConnectionCallbacks, GoogleApiClient.OnConnec
                 .build();
     }
 
-    public ArrayList<Double> getData() {
+    public CoordinatePoint getData() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(mContext, "Permission not granted", Toast.LENGTH_SHORT).show();
             return null;
         } else {
             mLocation = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
             if (mLocation != null) {
-                ArrayList<Double> locationData = new ArrayList<>();
+                CoordinatePoint coordinatePoint = new CoordinatePoint();
+                coordinatePoint.setLatitude(mLocation.getLatitude());
+                coordinatePoint.setLongitude(mLocation.getLongitude());
 
-                locationData.add(mLocation.getLatitude());
-                locationData.add(mLocation.getLongitude());
-
-                return locationData;
+                return coordinatePoint;
             } else {
                 Toast.makeText(mContext, "mLocation is null", Toast.LENGTH_SHORT).show();
                 return null;

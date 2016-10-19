@@ -17,6 +17,16 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:textColor="@android:color/background_dark"
-        android:text="Hello world"/>
+        android:text="Coordinates here"/>
+
+    <TextView
+        android:id="@+id/direction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:textColor="@android:color/background_dark"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/coordinates"
+        android:text="Direction here"/>
 
 </RelativeLayout>
