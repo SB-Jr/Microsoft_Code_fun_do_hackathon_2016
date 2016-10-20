@@ -83,9 +83,7 @@ public class LocateUser implements ConnectionCallbacks, GoogleApiClient.OnConnec
         } else {
             mLocation = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
             if (mLocation != null) {
-                CoordinatePoint coordinatePoint = new CoordinatePoint();
-                coordinatePoint.setLatitude(mLocation.getLatitude());
-                coordinatePoint.setLongitude(mLocation.getLongitude());
+                CoordinatePoint coordinatePoint = new CoordinatePoint(mLocation.getLatitude(),mLocation.getLongitude());
 
                 return coordinatePoint;
             } else {

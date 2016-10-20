@@ -6,6 +6,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import kamehameha.beam.percept.callbackinterfaces.OrientationChangeCallback;
+
 /**
  * Created by sbjr on 10/19/16.
  */
@@ -20,13 +22,17 @@ public class OrientUser implements SensorEventListener{
     private float[] mAccelerometerValues;
     private float[] mGeoMagneticValues;
 
-    private double direction;
+    private double direction=0.0;
 
-    public OrientUser(Context mContext) {
+    private OrientationChangeCallback orientationChangeCallback;
+
+    public OrientUser(Context mContext,OrientationChangeCallback orientationChangeCallback) {
         this.mContext = mContext;
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGeoMagnetic = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        this.orientationChangeCallback = orientationChangeCallback;
 
         registerListener();
     }
@@ -37,8 +43,8 @@ public class OrientUser implements SensorEventListener{
     }
 
     public void registerListener(){
-        mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_GAME);
-        mSensorManager.registerListener(this,mGeoMagnetic,SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this,mGeoMagnetic,SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public double getDirection() {
@@ -65,11 +71,22 @@ public class OrientUser implements SensorEventListener{
                 SensorManager.getOrientation(R, orientation);
 
                 // at this point, orientation contains the azimuth(direction), pitch and roll values.
-                double azimuth = orientation[0];
+                double azimuth = 180*orientation[0]/Math.PI;
                 double pitch = orientation[1];
                 double roll = orientation[2];
 
-                direction = azimuth;
+                //put condition for limiting
+                /*if(direction==0.0){
+                    direction = azimuth + 90;
+                    orientationChangeCallback.onOrientationChange(direction);
+                }
+
+                if(azimuth+90-direction>=1) {
+                    direction = azimuth + 90;
+                    orientationChangeCallback.onOrientationChange(direction);
+                }*/
+                direction = azimuth + 90;
+                orientationChangeCallback.onOrientationChange(direction);
             }
         }
 

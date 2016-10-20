@@ -1,4 +1,4 @@
-package kamehameha.beam.percept.location;
+package kamehameha.beam.percept.callbackinterfaces;
 
 import android.location.Location;
 import android.location.LocationManager;

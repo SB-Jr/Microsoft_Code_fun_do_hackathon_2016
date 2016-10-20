@@ -12,6 +12,19 @@ public class CoordinatePoint {
     private double augmentableX;
     private double augmentableY;
 
+    private String name;
+
+    public CoordinatePoint(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public CoordinatePoint(double latitude, double longitude, String name) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
+    }
+
     public double getLatitude() { return latitude;}
 
     public void setLatitude(double latitude) {
@@ -40,5 +53,13 @@ public class CoordinatePoint {
 
     public void setAugmentableY(double augmentableY) {
         this.augmentableY = augmentableY;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

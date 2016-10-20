@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,13 +21,14 @@ import java.util.ArrayList;
 
 import kamehameha.beam.percept.AugmentingBoard.AugmentCanvas;
 import kamehameha.beam.percept.R;
+import kamehameha.beam.percept.callbackinterfaces.OrientationChangeCallback;
 import kamehameha.beam.percept.camera.CameraCanvas;
 import kamehameha.beam.percept.location.LocateUser;
 import kamehameha.beam.percept.location.NearbyLocation;
 import kamehameha.beam.percept.location.OrientUser;
 import kamehameha.beam.percept.models.CoordinatePoint;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OrientationChangeCallback{
 
     //supporting objects for the activity
     private LocateUser mLocation;
@@ -45,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
     private CameraCanvas mCameraHolder;
     private AugmentCanvas mAugmentCanvas;
 
+
+    private CoordinatePoint presentPoint;
+    private NearbyLocation nearbyLocation;
+
+
+    private double direction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //users Orientation detection part of the application
-        mOrientation = new OrientUser(getApplicationContext());
+        mOrientation = new OrientUser(getApplicationContext(),this);
         double direction = mOrientation.getDirection();
         mDirectionTextView.setText("Direction: "+direction);
 
@@ -151,6 +159,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startApp2(){
-        mLocation = new LocateUser(getApplicationContext());
+        //mLocation = new LocateUser(getApplicationContext());
+        mOrientation = new OrientUser(getApplicationContext(),this);
+
+        presentPoint = new CoordinatePoint(13.345410, 74.795835);
+
+        nearbyLocation = new NearbyLocation(getResources().getDisplayMetrics().widthPixels,getResources().getDisplayMetrics().heightPixels);
+        nearbyLocation.populatePoints();
+    }
+
+    @Override
+    public void onOrientationChange(double azimuthal) {
+        mDirectionTextView.setText("orientation: "+azimuthal);
+        direction = azimuthal;
+        //mAugmentCanvas.showLocation(nearbyLocation.getAugmentableNearPoints(azimuthal,presentPoint));
+    }
+
+    public void buttonCapture(View v){
+        mAugmentCanvas.showLocation(nearbyLocation.getAugmentableNearPoints(direction,presentPoint));
     }
 }
