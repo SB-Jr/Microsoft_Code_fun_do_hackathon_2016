@@ -1,28 +1,28 @@
 package kamehameha.beam.percept.ui;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import kamehameha.beam.percept.AugmentingBoard.AugmentCanvas;
 import kamehameha.beam.percept.R;
 import kamehameha.beam.percept.camera.CameraCanvas;
 import kamehameha.beam.percept.location.LocateUser;
+import kamehameha.beam.percept.location.NearbyLocation;
 import kamehameha.beam.percept.location.OrientUser;
 import kamehameha.beam.percept.models.CoordinatePoint;
 
 public class MainActivity extends AppCompatActivity {
 
     //supporting objects for the activity
-    private CameraCanvas mCameraCanvas;
     private LocateUser mLocation;
     private OrientUser mOrientation;
 
@@ -31,50 +31,56 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] PERMISSIONS_REQUIRED = {  Manifest.permission.CAMERA,
                                                             Manifest.permission.LOCATION_HARDWARE,
                                                             Manifest.permission.CONTROL_LOCATION_UPDATES,
-                                                            Manifest.permission.ACCESS_COARSE_LOCATION};
+                                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                                            Manifest.permission.INTERNET};
     //view objects used in the activity
-    private TextView coordinatesText;
-    private SurfaceView cameraHolder;
+    private TextView mCoordinatesTextView;
+    private TextView mDirectionTextView;
+    private CameraCanvas mCameraHolder;
+    private AugmentCanvas mAugmentCanvas;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity    _main);
+        setContentView(R.layout.activity_main);
 
-        coordinatesText = (TextView) findViewById(R.id.coordinates);
-        cameraHolder = (SurfaceView) findViewById(R.id.camera_preview);
+        mCoordinatesTextView = (TextView) findViewById(R.id.coordinates);
+        mCameraHolder = (CameraCanvas) findViewById(R.id.camera_preview);
+        mDirectionTextView = (TextView) findViewById(R.id.direction);
+        //mAugmentCanvas = (AugmentCanvas) findViewById(R.id.augment_canvas);
 
+        checkPermissions();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(!hasPermissions()) {
-                requestPermissions(PERMISSIONS_REQUIRED,MY_PERMISSION_REQUEST_CODE);
-            }
-            else{
-                startApp();
-            }
-        }
-        else {
-            startApp();
-        }
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean hasPermissions(){
-        for(String perm: PERMISSIONS_REQUIRED){
-            if(checkSelfPermission(perm)!=PackageManager.PERMISSION_GRANTED){
-                return false;
+    private void checkPermissions(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ArrayList<String> permissionsNeeded = new ArrayList<>();
+            for(String perm: PERMISSIONS_REQUIRED){
+                if(checkSelfPermission(perm)!=PackageManager.PERMISSION_GRANTED){
+                    permissionsNeeded.add(perm);
+                }
+            }
+            if(!permissionsNeeded.isEmpty()){
+                requestPermissions(permissionsNeeded.toArray(new String[permissionsNeeded.size()]),MY_PERMISSION_REQUEST_CODE);
+            }
+            else{
+                startApp2();
             }
         }
-        return true;
+        else {
+            startApp2();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode==MY_PERMISSION_REQUEST_CODE){
-            boolean isOK=true;
+            startApp2();
+            /*boolean isOK=true;
             for(int i=0;i<grantResults.length;i++){
                 if(grantResults[i]!=PackageManager.PERMISSION_GRANTED){
                     isOK=false;
@@ -86,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             else{
+                finish();
                 AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext())
                         .setMessage(getString(R.string.wont_work_description))
                         .setTitle(getString(R.string.wont_work))
@@ -105,14 +112,14 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                 builder.create().show();
-            }
+            }*/
         }
     }
 
 
     private void startApp(){
         //camera part of the application
-        mCameraCanvas = new CameraCanvas(this,cameraHolder.getHolder());
+        //mCameraCanvas = new CameraCanvas(this, mCameraHolder.getHolder(),null);//check null
 
         //users location detection part of the application
         mLocation = new LocateUser(getApplicationContext());
@@ -120,14 +127,26 @@ public class MainActivity extends AppCompatActivity {
         mLocation.connect();
         CoordinatePoint co = mLocation.getData();
         if (co != null) {
-            coordinatesText.setText("latitude: " + co.getLatitude() + " longitude: " + co.getLongitude());
+            mCoordinatesTextView.setText("latitude: " + co.getLatitude() + " longitude: " + co.getLongitude());
         } else {
-            coordinatesText.setText("no data available");
+            mCoordinatesTextView.setText("no data available");
         }
 
         //users Orientation detection part of the application
         mOrientation = new OrientUser(getApplicationContext());
         double direction = mOrientation.getDirection();
+        mDirectionTextView.setText("Direction: "+direction);
+
+        //fetch locations
+        NearbyLocation nearbyLocation = new NearbyLocation(getResources().getDisplayMetrics().widthPixels,getResources().getDisplayMetrics().heightPixels);
+
+        //put the location on screen
+        mAugmentCanvas.showLocation(nearbyLocation.getAugmentableNearPoints(direction,co));
+    }
+
+    private void startApp2(){
+        //Camera camera = Camera.open();
+        //mCameraHolder.getHolder().addCallback(mCameraCanvas);
     }
 
 }

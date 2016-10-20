@@ -2,9 +2,12 @@ package kamehameha.beam.percept.camera;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
+
+import java.io.IOException;
 
 /**
  * Created by sbjr on 10/11/16.
@@ -16,10 +19,20 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
     private Camera mCamera;
     private SurfaceHolder mHolder;
 
-    public CameraCanvas(Context context,SurfaceHolder holder) {
+    public CameraCanvas(Context context) {
         super(context);
+        init();
+    }
+
+
+    public CameraCanvas(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    private void init(){
         mCamera = Camera.open();
-        mHolder = holder;
+        mHolder = getHolder();
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
@@ -27,6 +40,22 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         try{
+            mCamera.setPreviewDisplay(holder);
+            mCamera.startPreview();
+        }
+        catch (Exception e){
+            Toast.makeText(getContext(),e.toString(),Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        try{
+            mHolder = holder;
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPictureSize(width,height);
+            //mCamera.setParameters(parameters);
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();
         }
@@ -36,14 +65,10 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         if(mCamera!=null){
             mCamera.stopPreview();
+            mCamera.release();
         }
     }
 }
