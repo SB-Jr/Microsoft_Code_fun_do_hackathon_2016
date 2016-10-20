@@ -2,13 +2,19 @@ package kamehameha.beam.percept.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.SurfaceView;
 import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+
 
 import java.util.ArrayList;
 
@@ -48,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         mCoordinatesTextView = (TextView) findViewById(R.id.coordinates);
         mCameraHolder = (CameraCanvas) findViewById(R.id.camera_preview);
         mDirectionTextView = (TextView) findViewById(R.id.direction);
-        //mAugmentCanvas = (AugmentCanvas) findViewById(R.id.augment_canvas);
+        mAugmentCanvas = (AugmentCanvas) findViewById(R.id.augment_canvas);
 
         checkPermissions();
 
@@ -56,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkPermissions(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//ask permissions only if version more than m
             ArrayList<String> permissionsNeeded = new ArrayList<>();
             for(String perm: PERMISSIONS_REQUIRED){
                 if(checkSelfPermission(perm)!=PackageManager.PERMISSION_GRANTED){
@@ -66,11 +72,11 @@ public class MainActivity extends AppCompatActivity {
             if(!permissionsNeeded.isEmpty()){
                 requestPermissions(permissionsNeeded.toArray(new String[permissionsNeeded.size()]),MY_PERMISSION_REQUEST_CODE);
             }
-            else{
+            else{//if no permission required then directly start the app functionality
                 startApp2();
             }
         }
-        else {
+        else {//start the app functionality if android version of device is less than m
             startApp2();
         }
     }
@@ -145,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startApp2(){
-        //Camera camera = Camera.open();
-        //mCameraHolder.getHolder().addCallback(mCameraCanvas);
+        mLocation = new LocateUser(getApplicationContext());
     }
-
 }

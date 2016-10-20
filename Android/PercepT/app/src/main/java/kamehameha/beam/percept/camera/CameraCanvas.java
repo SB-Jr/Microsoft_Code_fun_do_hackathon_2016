@@ -55,7 +55,7 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
             mHolder = holder;
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPictureSize(width,height);
-            //mCamera.setParameters(parameters);
+            mCamera.setParameters(parameters);//dont set the parameters if camera not working
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();
         }

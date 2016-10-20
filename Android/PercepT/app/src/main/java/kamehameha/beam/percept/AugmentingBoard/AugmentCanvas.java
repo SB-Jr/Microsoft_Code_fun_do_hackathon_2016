@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -25,12 +26,16 @@ import kamehameha.beam.percept.models.CoordinatePoint;
 public class AugmentCanvas extends View {
 
     private Canvas mCanvas;
-    Context context;
+    private Context context;
+    private Paint paint;
 
+    private ArrayList<CoordinatePoint> points;
 
     public AugmentCanvas(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
+        paint = new Paint(Paint.DITHER_FLAG);
+        points = new ArrayList<>();
     }
 
 
@@ -42,7 +47,14 @@ public class AugmentCanvas extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         mCanvas = canvas;
+
+        for(CoordinatePoint point : points){
+            Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.location_icon);
+            mCanvas.drawBitmap(icon,(float)point.getAugmentableX(),(float)point.getAugmentableY(),paint);
+        }
+
     }
 
 
@@ -52,14 +64,24 @@ public class AugmentCanvas extends View {
         float x = event.getX();
         float y = event.getY();
 
-        addLocation(x,y);
+        invalidate();
+
+        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+            addLocation(x, y);
+        }
 
         return true;
     }
 
     //adds the location pointed by the user to his set
     public void addLocation(float x,float y){
-
+        Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.location_icon);
+        mCanvas.drawBitmap(icon,x,y,paint);
+        CoordinatePoint point = new CoordinatePoint();
+        point.setAugmentableX(x);
+        point.setAugmentableY(y);
+        points.add(point);
+        //Log.d("touch","("+x+","+y+")");
     }
 
     public void showLocation(ArrayList<CoordinatePoint> points){

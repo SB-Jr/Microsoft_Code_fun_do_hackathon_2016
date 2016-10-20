@@ -21,43 +21,15 @@ public class LocateUserService extends Service {
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 10f;
+    private LocationChangeCallback mLocationChangeCallback;
 
-    public LocateUserService() {
+    public LocateUserService(LocationChangeCallback mLocationChangeCallback) {
+        this.mLocationChangeCallback = mLocationChangeCallback;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-
-    private class MyLocationListener implements android.location.LocationListener {
-
-        Location mLastLocation;
-
-        public MyLocationListener(String provider) {
-            mLastLocation = new Location(provider);
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            mLastLocation.set(location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
     }
 
     MyLocationListener[] myLocationListeners = new MyLocationListener[]{
@@ -107,6 +79,37 @@ public class LocateUserService extends Service {
     private void init(){
         if(mLocationManager == null){
             mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        }
+    }
+
+    private class MyLocationListener implements android.location.LocationListener {
+
+        Location mLastLocation;
+
+        public MyLocationListener(String provider) {
+            mLastLocation = new Location(provider);
+            mLocationChangeCallback.onLocationChange(mLastLocation);
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+            mLastLocation.set(location);
+            mLocationChangeCallback.onLocationChange(mLastLocation);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
         }
     }
 }

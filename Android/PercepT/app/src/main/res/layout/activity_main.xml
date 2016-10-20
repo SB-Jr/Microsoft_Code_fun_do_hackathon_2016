@@ -11,6 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <kamehameha.beam.percept.AugmentingBoard.AugmentCanvas
+        android:id="@+id/augment_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 
     <TextView
         android:id="@+id/coordinates"
