@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import kamehameha.beam.percept.AugmentingBoard.AugmentCanvas;
 import kamehameha.beam.percept.R;
+import kamehameha.beam.percept.callbackinterfaces.LocationChangeCallback;
 import kamehameha.beam.percept.callbackinterfaces.OrientationChangeCallback;
 import kamehameha.beam.percept.camera.CameraCanvas;
 import kamehameha.beam.percept.location.LocateUser;
@@ -28,7 +29,7 @@ import kamehameha.beam.percept.location.NearbyLocation;
 import kamehameha.beam.percept.location.OrientUser;
 import kamehameha.beam.percept.models.CoordinatePoint;
 
-public class MainActivity extends AppCompatActivity implements OrientationChangeCallback{
+public class MainActivity extends AppCompatActivity implements OrientationChangeCallback,LocationChangeCallback{
 
     //supporting objects for the activity
     private LocateUser mLocation;
@@ -39,8 +40,13 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
     private static final String[] PERMISSIONS_REQUIRED = {  Manifest.permission.CAMERA,
                                                             Manifest.permission.LOCATION_HARDWARE,
                                                             Manifest.permission.CONTROL_LOCATION_UPDATES,
+                                                            Manifest.permission.ACCESS_FINE_LOCATION,
                                                             Manifest.permission.ACCESS_COARSE_LOCATION,
                                                             Manifest.permission.INTERNET};
+
+    private ArrayList<String> permissionsNeeded = new ArrayList<>();
+
+
     //view objects used in the activity
     private TextView mCoordinatesTextView;
     private TextView mDirectionTextView;
@@ -57,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         mCoordinatesTextView = (TextView) findViewById(R.id.coordinates);
@@ -71,14 +78,14 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
 
     private void checkPermissions(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//ask permissions only if version more than m
-            ArrayList<String> permissionsNeeded = new ArrayList<>();
             for(String perm: PERMISSIONS_REQUIRED){
                 if(checkSelfPermission(perm)!=PackageManager.PERMISSION_GRANTED){
                     permissionsNeeded.add(perm);
                 }
             }
             if(!permissionsNeeded.isEmpty()){
-                requestPermissions(permissionsNeeded.toArray(new String[permissionsNeeded.size()]),MY_PERMISSION_REQUEST_CODE);
+                requestPermissions(new String[]{permissionsNeeded.get(0)},MY_PERMISSION_REQUEST_CODE);
+                return;
             }
             else{//if no permission required then directly start the app functionality
                 startApp2();
@@ -93,7 +100,16 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode==MY_PERMISSION_REQUEST_CODE){
-            startApp2();
+            permissionsNeeded.remove(0);
+            if(!permissionsNeeded.isEmpty()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{permissionsNeeded.get(0)}, MY_PERMISSION_REQUEST_CODE);
+                    return;
+                }
+            }
+            else {
+                startApp2();
+            }
             /*boolean isOK=true;
             for(int i=0;i<grantResults.length;i++){
                 if(grantResults[i]!=PackageManager.PERMISSION_GRANTED){
@@ -136,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
         //mCameraCanvas = new CameraCanvas(this, mCameraHolder.getHolder(),null);//check null
 
         //users location detection part of the application
-        mLocation = new LocateUser(getApplicationContext());
+        mLocation = new LocateUser(getApplicationContext(),this);
         mLocation.buildApi();
         mLocation.connect();
         CoordinatePoint co = mLocation.getData();
@@ -159,6 +175,9 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
     }
 
     private void startApp2(){
+
+        mLocation = new LocateUser(getApplicationContext(),this);
+
         //mLocation = new LocateUser(getApplicationContext());
         mOrientation = new OrientUser(getApplicationContext(),this);
 
@@ -177,5 +196,10 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
 
     public void buttonCapture(View v){
         mAugmentCanvas.showLocation(nearbyLocation.getAugmentableNearPoints(direction,presentPoint));
+    }
+
+    @Override
+    public void onLocationChange(Location location) {
+        mCoordinatesTextView.setText("latitude: " + location.getLatitude() + " longitude: " + location.getLongitude());
     }
 }

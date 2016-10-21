@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import kamehameha.beam.percept.callbackinterfaces.LocationChangeCallback;
 import kamehameha.beam.percept.models.CoordinatePoint;
 
 /**
@@ -39,11 +40,16 @@ public class LocateUser implements ConnectionCallbacks, GoogleApiClient.OnConnec
     private Context mContext;
 
 
+    private LocationChangeCallback locationChangeCallback;
+
     private static final long UPDATE_INTERVAL = 300;
 
 
-    public LocateUser(Context mContext) {
+    public LocateUser(Context mContext,LocationChangeCallback callback) {
         this.mContext = mContext;
+        locationChangeCallback = callback;
+        buildApi();
+        connect();
     }
 
     private boolean checkPlayService() {
@@ -58,6 +64,28 @@ public class LocateUser implements ConnectionCallbacks, GoogleApiClient.OnConnec
 
         if (checkPlayService() && mApiClient != null) {
             mApiClient.connect();
+            new AsyncTask<Void,Void,Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    if(mApiClient.isConnected()==false){
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    createLocationRequest();
+                    startUpdate();
+                    getData();
+                    locationChangeCallback.onLocationChange(mLocation);
+                }
+            }.execute();
         }
     }
 
@@ -102,8 +130,11 @@ public class LocateUser implements ConnectionCallbacks, GoogleApiClient.OnConnec
     }
 
     public void startUpdate() {
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(mContext,"Permission not granted",Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+            Toast.makeText(mContext,"access fine location Permission not granted",Toast.LENGTH_SHORT).show();
+        }
+        else if(ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(mContext,"access coarse location Permission not granted",Toast.LENGTH_SHORT).show();
         }
         else {
             LocationServices.FusedLocationApi.requestLocationUpdates(mApiClient, mLocationRequest, this);
@@ -132,6 +163,7 @@ public class LocateUser implements ConnectionCallbacks, GoogleApiClient.OnConnec
     @Override
     public void onLocationChanged(Location location) {
         mLocation = location;
+        locationChangeCallback.onLocationChange(mLocation);
     }
 
 }
