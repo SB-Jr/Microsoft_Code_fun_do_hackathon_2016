@@ -16,7 +16,7 @@ public class NearbyLocation {
     private int width;
     private int height;
 
-    private static final double HALF_SPAN_VIEW = 30;//angle at max a point can be to be show on the screen
+    private static final double HALF_SPAN_VIEW = 60;//angle at max a point can be to be show on the screen
     private static final double HALF_SPAN_VIEW_OPPOSITE = -1*HALF_SPAN_VIEW;
     private static final double MAX_DISTANCE_COVERED=0.01;//diff between 2 latitudes can at max be 0.01
 
@@ -39,11 +39,28 @@ public class NearbyLocation {
         ArrayList<CoordinatePoint> augmentPoints = new ArrayList<>();
 
         for(CoordinatePoint point :nearPoints){
-            double pointAngle = 180*Math.atan2(point.getLongitude(),point.getLatitude())/Math.PI;
+            double latDiff = point.getLatitude()-deviceLocation.getLatitude();
+            double longDiff = point.getLongitude() - deviceLocation.getLongitude();
+            double pointAngle = 180*Math.atan2(Math.abs(latDiff),Math.abs(longDiff))/Math.PI;
             Log.d("augmented angle",pointAngle+"");
-            double diff = (-1)*deviceAngle - pointAngle;
-            diff = diff*10000;
-            diff = ((int)diff)%100;
+
+            if(point.getLongitude()<deviceLocation.getLongitude()){
+                if(point.getLongitude()>deviceLocation.getLongitude()) {
+                    pointAngle = (90 - pointAngle) * (-1);
+                }
+                else{
+                    pointAngle = (90 + pointAngle) * (-1);
+                }
+            }
+            else{
+                if(point.getLongitude()>deviceLocation.getLongitude()) {
+                    pointAngle = (90 - pointAngle);
+                }
+                else{
+                    pointAngle = (90 + pointAngle);
+                }
+            }
+            double diff = deviceAngle - pointAngle;
             Log.d("augmented difference",diff+"");
             if(diff>=HALF_SPAN_VIEW_OPPOSITE&&diff<=HALF_SPAN_VIEW){
                 double x = (width/2)+(width/2)*(diff/60);

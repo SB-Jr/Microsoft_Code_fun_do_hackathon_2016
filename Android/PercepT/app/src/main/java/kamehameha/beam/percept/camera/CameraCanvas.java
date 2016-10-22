@@ -21,7 +21,6 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
 
     public CameraCanvas(Context context) {
         super(context);
-        init();
     }
 
 
@@ -30,7 +29,7 @@ public class CameraCanvas extends SurfaceView implements SurfaceHolder.Callback 
         init();
     }
 
-    private void init(){
+    public void init(){
         mCamera = Camera.open();
         mHolder = getHolder();
         mHolder.addCallback(this);

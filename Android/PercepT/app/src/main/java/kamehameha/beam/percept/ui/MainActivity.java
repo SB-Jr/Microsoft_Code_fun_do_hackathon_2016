@@ -10,6 +10,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -64,14 +66,20 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
+
+        checkPermissions();
 
         mCoordinatesTextView = (TextView) findViewById(R.id.coordinates);
         mCameraHolder = (CameraCanvas) findViewById(R.id.camera_preview);
         mDirectionTextView = (TextView) findViewById(R.id.direction);
         mAugmentCanvas = (AugmentCanvas) findViewById(R.id.augment_canvas);
 
-        checkPermissions();
+
 
     }
 
@@ -176,12 +184,14 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
 
     private void startApp2(){
 
+        //mCameraHolder.init();
+
         mLocation = new LocateUser(getApplicationContext(),this);
 
         //mLocation = new LocateUser(getApplicationContext());
         mOrientation = new OrientUser(getApplicationContext(),this);
 
-        presentPoint = new CoordinatePoint(13.345410, 74.795835);
+        //presentPoint = new CoordinatePoint(13.345410, 74.795835);
 
         nearbyLocation = new NearbyLocation(getResources().getDisplayMetrics().widthPixels,getResources().getDisplayMetrics().heightPixels);
         nearbyLocation.populatePoints();
@@ -200,6 +210,9 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
 
     @Override
     public void onLocationChange(Location location) {
-        mCoordinatesTextView.setText("latitude: " + location.getLatitude() + " longitude: " + location.getLongitude());
+        if(location!=null) {
+            mCoordinatesTextView.setText("latitude: " + location.getLatitude() + " longitude: " + location.getLongitude());
+            presentPoint = new CoordinatePoint(location.getLatitude(), location.getLongitude());
+        }
     }
 }

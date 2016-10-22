@@ -85,7 +85,12 @@ public class OrientUser implements SensorEventListener{
                     direction = azimuth + 90;
                     orientationChangeCallback.onOrientationChange(direction);
                 }*/
-                direction = azimuth + 90;
+                if(azimuth>=90){
+                    direction = -270+azimuth;
+                }
+                else {
+                    direction = azimuth + 90;
+                }
                 orientationChangeCallback.onOrientationChange(direction);
             }
         }
