@@ -1,6 +1,7 @@
 package kamehameha.beam.percept.ui;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
     private UpdateNearSpace updateNearSpace;
 
     private double direction;
+    private String jsonNearLocationData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,11 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
+
+        Intent intent  = getIntent();
+        if(intent.hasExtra("data")){
+            jsonNearLocationData = intent.getStringExtra("data");
+        }
 
         checkPermissions();
 
@@ -195,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
         //presentPoint = new CoordinatePoint(13.345410, 74.795835);
 
         nearbyLocation = new NearbyLocation(getResources().getDisplayMetrics().widthPixels,getResources().getDisplayMetrics().heightPixels);
-        nearbyLocation.populatePoints();
+        nearbyLocation.populatePoints(jsonNearLocationData);
 
         updateNearSpace = new UpdateNearSpace();
         updateNearSpace.execute();

@@ -27,7 +27,7 @@ public class NearbyLocation {
         this.height = height;
     }
 
-    public void populatePoints(){
+    public void populatePoints(String json){
         nearPoints = new ArrayList<>();
         nearPoints.add(new CoordinatePoint(13.352274, 74.792898,"AB1"));
         nearPoints.add(new CoordinatePoint(13.345433, 74.794904,"Lipton"));
