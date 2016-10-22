@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
 
     private CoordinatePoint presentPoint;
     private NearbyLocation nearbyLocation;
-
+    private UpdateNearSpace updateNearSpace;
 
     private double direction;
 
@@ -195,6 +196,9 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
 
         nearbyLocation = new NearbyLocation(getResources().getDisplayMetrics().widthPixels,getResources().getDisplayMetrics().heightPixels);
         nearbyLocation.populatePoints();
+
+        updateNearSpace = new UpdateNearSpace();
+        updateNearSpace.execute();
     }
 
     @Override
@@ -214,5 +218,32 @@ public class MainActivity extends AppCompatActivity implements OrientationChange
             mCoordinatesTextView.setText("latitude: " + location.getLatitude() + " longitude: " + location.getLongitude());
             presentPoint = new CoordinatePoint(location.getLatitude(), location.getLongitude());
         }
+    }
+
+    public class UpdateNearSpace extends AsyncTask<Void, Void,Void>{
+        @Override
+        protected Void doInBackground(Void... params) {
+            while(true){
+                try {
+                    publishProgress();
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            mAugmentCanvas.showLocation(nearbyLocation.getAugmentableNearPoints(direction,presentPoint));
+        }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        updateNearSpace.cancel(true);
     }
 }

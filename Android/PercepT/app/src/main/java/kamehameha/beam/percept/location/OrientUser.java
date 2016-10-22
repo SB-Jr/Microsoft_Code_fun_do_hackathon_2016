@@ -23,6 +23,7 @@ public class OrientUser implements SensorEventListener{
     private float[] mGeoMagneticValues;
 
     private double direction=0.0;
+    private double oldDirection =0.0;
 
     private OrientationChangeCallback orientationChangeCallback;
 
@@ -75,21 +76,18 @@ public class OrientUser implements SensorEventListener{
                 double pitch = orientation[1];
                 double roll = orientation[2];
 
-                //put condition for limiting
-                /*if(direction==0.0){
-                    direction = azimuth + 90;
-                    orientationChangeCallback.onOrientationChange(direction);
-                }
-
-                if(azimuth+90-direction>=1) {
-                    direction = azimuth + 90;
-                    orientationChangeCallback.onOrientationChange(direction);
-                }*/
                 if(azimuth>=90){
                     direction = -270+azimuth;
                 }
                 else {
                     direction = azimuth + 90;
+                }
+
+                if(Math.abs(direction-oldDirection)<=3.0){    //if change in angle is less, then no change
+                    direction = oldDirection;
+                }
+                else{
+                    oldDirection = direction;
                 }
                 orientationChangeCallback.onOrientationChange(direction);
             }
