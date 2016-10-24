@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaActionSound;
 
 import kamehameha.beam.percept.callbackinterfaces.OrientationChangeCallback;
 
@@ -18,6 +19,10 @@ public class OrientUser implements SensorEventListener{
     private Context mContext;
     private Sensor mGeoMagnetic;
     private Sensor mAccelerometer;
+    double x;
+    double y;
+    double z;
+
 
     private float[] mAccelerometerValues;
     private float[] mGeoMagneticValues;
@@ -71,17 +76,28 @@ public class OrientUser implements SensorEventListener{
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
 
-                // at this point, orientation contains the azimuth(direction), pitch and roll values.
-                double azimuth = 180*orientation[0]/Math.PI;
-                double pitch = orientation[1];
-                double roll = orientation[2];
+                x = orientation[0];
+                y = orientation[1];
+                z = orientation[2];
+                //double s = Math.sqrt(x*x + y*y + z*z);
 
-                if(azimuth>=90){
-                    direction = -270+azimuth;
+                // at this point, orientation contains the azimuth(direction), pitch and roll values.
+                double azimuth = 180*orientation[0]/Math.PI;//azimuth=[0,360),0 is north and 180 is south
+                double pitch = 180*orientation[1]/Math.PI;
+                double roll = 180*orientation[2]/ Math.PI;
+
+                azimuth+=90;
+                //roll+=90;
+
+                direction = roll;
+
+                //changing the range of direction to -180 to 180
+                /*if(azimuth>180){
+                    direction = azimuth-360;
                 }
                 else {
-                    direction = azimuth + 90;
-                }
+                    direction = azimuth;
+                }*/
 
                 if(Math.abs(direction-oldDirection)<=3.0){    //if change in angle is less, then no change
                     direction = oldDirection;

@@ -22,7 +22,6 @@ public class NearbyLocation {
 
 
     public NearbyLocation(int width,int height) {
-        populatePoints();
         this.width = width;
         this.height = height;
     }
@@ -41,23 +40,25 @@ public class NearbyLocation {
         for(CoordinatePoint point :nearPoints){
             double latDiff = point.getLatitude()-deviceLocation.getLatitude();
             double longDiff = point.getLongitude() - deviceLocation.getLongitude();
-            double pointAngle = 180*Math.atan2(Math.abs(latDiff),Math.abs(longDiff))/Math.PI;
+            double pointAngle = Math.atan2(Math.abs(latDiff),Math.abs(longDiff));//it is (y,x) and returns andle
             Log.d("augmented angle",pointAngle+"");
 
             if(point.getLongitude()<deviceLocation.getLongitude()){
-                if(point.getLongitude()>deviceLocation.getLongitude()) {
+                if(point.getLongitude()>deviceLocation.getLongitude()) {     //4th quad
                     pointAngle = (90 - pointAngle) * (-1);
                 }
                 else{
-                    pointAngle = (90 + pointAngle) * (-1);
+                    continue;
+                    //pointAngle = (90 + pointAngle) * (-1);         //3rd quad
                 }
             }
             else{
-                if(point.getLongitude()>deviceLocation.getLongitude()) {
+                if(point.getLongitude()>deviceLocation.getLongitude()) {    //1st quad
                     pointAngle = (90 - pointAngle);
                 }
                 else{
-                    pointAngle = (90 + pointAngle);
+                    continue;
+                    //pointAngle = (90 + pointAngle);         //2nd quad
                 }
             }
             double diff = deviceAngle - pointAngle;

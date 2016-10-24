@@ -8,6 +8,7 @@ public class CoordinatePoint {
 
     private double latitude;
     private double longitude;
+    private String description;
 
     private double augmentableX;
     private double augmentableY;
@@ -23,6 +24,13 @@ public class CoordinatePoint {
         this.latitude = latitude;
         this.longitude = longitude;
         this.name = name;
+    }
+
+    public CoordinatePoint(double latitude, double longitude, String name,String desc) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
+        this.description = desc;
     }
 
     public double getLatitude() { return latitude;}
